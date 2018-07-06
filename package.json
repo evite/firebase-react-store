@@ -1,0 +1,23 @@
+{
+  "name": "mobase",
+  "version": "0.0.1",
+  "description": "Seemless React firebase integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evite/mobase.git"
+  },
+  "keywords": [
+    "react",
+    "firebase"
+  ],
+  "author": "Evite",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evite/mobase/issues"
+  },
+  "homepage": "https://github.com/evite/mobase#readme"
+}
