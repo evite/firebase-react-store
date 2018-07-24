@@ -17,24 +17,25 @@ function disposer(func) {
 }
 
 /**
- * Autorun will execute the function immediately and will
+ * `view` will execute the function immediately and will
  * track data accesses made through `ref` and re-execute the function
  * when a tracked database value changes.
  *
  * @param func
  */
-export function autorun(func) {
+export function view(func) {
   // begin tracking accesses to state
   state.addPendingView(func);
 
   try {
     func();
   } catch (e) {
-    if (e === NOT_SET) {
-      console.log('view not complete');
-      state.incompleteViews.add(func);
+    if (e !== NOT_SET) {
+      // values are not set yet, but the access should
+      // have been added to the subject's listener list already,
+      // so it'll just react later.
+      throw e;
     }
-    throw e;
   } finally {
     state.removePendingView(func);
   }

@@ -6,12 +6,6 @@ class State {
    */
   pendingViews = new Set();
 
-  /**
-   * Sometimes autorun views are used against subjects that have not yet
-   * called the values handler, so we track them here and execute later.
-   */
-  incompleteViews = new Set();
-
   addPendingView = (view) => {
     this.pendingViews.add(view);
   };

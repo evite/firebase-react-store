@@ -42,9 +42,13 @@ const proxyHandler = {
       subjects.add(subject);
     }
 
-    if (subject._valueFuture === NOT_SET) throw NOT_SET;
+    if (subject.hasOwnProperty(name)) {
+      return subject[name];
+    }
 
-    if (name[0] === '_') return subject[name];
+    if (subject._values === NOT_SET) {
+      throw NOT_SET;
+    }
     return subject._values[name];
   },
 };

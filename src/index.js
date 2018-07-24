@@ -1,5 +1,5 @@
 import {RTDatabase} from './database';
-import {autorun} from './autorun';
+import {view} from './view';
 import {subject} from './subject';
 
-export {autorun, RTDatabase, subject};
+export {view, RTDatabase, subject};
