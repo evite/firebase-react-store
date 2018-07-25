@@ -6,10 +6,10 @@ class Subject {
     this._ref = ref;
     this._values = NOT_SET;
     this._listeners = new Set();
-    this._valueFuture = new Promise(this._resolveValues);
+    this._valuePromise = new Promise((resolve) => {
+      this._resolveValues = resolve;
+    });
   }
-
-  _resolveValues = () => {};
 
   onValues = (response) => {
     this._values = response.val();
@@ -22,6 +22,43 @@ class Subject {
         console.error(e);
       }
     }
+  };
+
+  values = async () => {
+    await this._valuePromise;
+    return Object.assign({}, this._values);
+  };
+
+  /**
+   * Set a value, replacing whatever value is already present.
+   *
+   * To update specific fields use `update`.
+   *
+   * @param values:Object of properties to set
+   * @returns Promise
+   */
+  set = (values) => {
+    return this._ref.set(values);
+  };
+
+  /**
+   * Update specific fields
+   *
+   * @param values:Object of properties to set
+   * @returns Promise
+   */
+  update = (values) => {
+    return this._ref.update(values);
+  };
+
+  /**
+   * Remove the path referred to by this subject. This will also remove
+   * any child nodes of the current path.
+   *
+   * @returns Promise
+   */
+  remove = () => {
+    return this._ref.remove();
   };
 
   close = () => {

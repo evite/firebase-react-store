@@ -3,9 +3,8 @@ import {rtdb} from './index';
 import {NOT_SET} from 'mobase/constants';
 
 test('write and receive updates for an int', async () => {
-  const ref = rtdb.fdb.ref('/a');
-  ref.set({b: 0});
   const subject = rtdb.get('/a');
+  subject.set({b: 0});
 
   let resolvers = [];
   let promises = [
@@ -20,14 +19,13 @@ test('write and receive updates for an int', async () => {
 
   await promises[0];
 
-  await ref.set({b: 1});
+  await subject.update({b: 1});
   await promises[1];
 
   disposer();
 });
 
 test('test incomplete view', async () => {
-  const ref = rtdb.fdb.ref('/b');
   const subject = rtdb.get('/b');
 
   let resolvers = [];
@@ -45,10 +43,10 @@ test('test incomplete view', async () => {
   // but the view should be a listener
   expect(subject._listeners.size).toBe(1);
 
-  await ref.set({b: 0});
+  await subject.set({b: 0});
   await promises[0];
 
-  await ref.set({b: 1});
+  await subject.set({b: 1});
   await promises[1];
 
   disposer();
