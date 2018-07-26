@@ -3,17 +3,17 @@ import {rtdb} from './index';
 import {NOT_SET} from 'firebase-react-store/constants';
 
 test('uninitialized subject throws NOT_SET', async () => {
-  const subject = rtdb.get('/c');
+  const doc = rtdb.get('/c');
   expect(() => {
-    console.log(subject.asdf);
+    console.log(doc.asdf);
   }).toThrow();
 
-  subject.close();
+  doc.close();
 });
 
 test('remove a subject', async () => {
-  const subject = rtdb.get('/remove-a-subject');
-  await subject.remove();
-  await subject.set({hmm: 1});
-  expect((await subject.values()).hmm).toBe(1);
+  const doc = rtdb.get('/remove-a-subject');
+  await doc.remove();
+  await doc.set({hmm: 1});
+  expect((await doc.values()).hmm).toBe(1);
 });
