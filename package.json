@@ -2,7 +2,7 @@
   "name": "mobase",
   "version": "0.0.1",
   "description": "Seemless React firebase integration",
-  "module": "src/index.js",
+  "module": "dist/mobase.js",
   "main": "dist/mobase.cjs.js",
   "scripts": {
     "test": "jest"
@@ -33,8 +33,8 @@
     "fs-extra": "^7.0.0",
     "jest": "^23.4.1",
     "rollup": "^0.62.0",
-    "rollup-plugin-babel": "^3.0.7",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "rollup-plugin-auto-external": "^1.2.0",
+    "rollup-plugin-babel": "^3.0.7"
   },
   "dependencies": {
     "firebase": "^5.2.0",

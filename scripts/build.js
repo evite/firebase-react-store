@@ -2,8 +2,8 @@ const rollup = require('rollup');
 const fs = require('fs-extra');
 const path = require('path');
 const exec = require('child_process').execSync;
-const resolve = require('rollup-plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
+const autoExternal = require('rollup-plugin-auto-external');
 
 // make sure we're in the right folder
 process.chdir(path.resolve(__dirname, '..'));
@@ -13,7 +13,7 @@ const binFolder = path.resolve('node_modules/.bin/');
 fs.removeSync('dist');
 
 const rollupPlugins = [
-  resolve(),
+  autoExternal(),
   babel({
     exclude: 'node_modules/**', // only transpile our source code
   }),
@@ -23,6 +23,7 @@ async function generateBundledModule(inputFile, outputFile, format) {
   console.log(`Generating ${outputFile} bundle.`);
 
   const bundle = await rollup.rollup({
+    external: ['@firebase/app', '@firebase/database'],
     input: inputFile,
     plugins: rollupPlugins,
   });
