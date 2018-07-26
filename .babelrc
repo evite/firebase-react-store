@@ -20,7 +20,7 @@
           "./src"
         ],
         "alias": {
-          "mobase": "./src"
+          "firebase-react-store": "./src"
         }
       }
     ]

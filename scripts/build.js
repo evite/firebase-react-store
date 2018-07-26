@@ -30,7 +30,7 @@ async function generateBundledModule(inputFile, outputFile, format) {
   bundle.write({
     file: outputFile,
     format,
-    banner: '/** mobase - (c) Evite Inc. 2018 - MIT Licensed */',
+    banner: '/** firebase-react-store - (c) Evite Inc. 2018 - MIT Licensed */',
     exports: 'named',
   });
 }
@@ -39,12 +39,12 @@ function build() {
   return Promise.all([
     generateBundledModule(
       path.resolve('src', 'index.js'),
-      path.resolve('dist', 'mobase.cjs.js'),
+      path.resolve('dist', 'firebase-react-store.cjs.js'),
       'cjs'
     ),
     generateBundledModule(
       path.resolve('src', 'index.js'),
-      path.resolve('dist', 'mobase.js'),
+      path.resolve('dist', 'firebase-react-store.js'),
       'es'
     ),
   ]).then(() => {

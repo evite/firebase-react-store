@@ -1,6 +1,6 @@
-import {view} from 'mobase';
+import {view} from 'firebase-react-store';
 import {rtdb} from './index';
-import {NOT_SET} from 'mobase/constants';
+import {NOT_SET} from 'firebase-react-store/constants';
 
 test('write and receive updates for an int', async () => {
   const subject = rtdb.get('/a');
