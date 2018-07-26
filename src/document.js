@@ -1,7 +1,7 @@
 import {NOT_SET} from './constants';
 import {state} from './state';
 
-class Subject {
+class Document {
   constructor(ref) {
     this._ref = ref;
     this._values = NOT_SET;
@@ -52,7 +52,7 @@ class Subject {
   };
 
   /**
-   * Remove the path referred to by this subject. This will also remove
+   * Remove the path referred to by this document. This will also remove
    * any child nodes of the current path.
    *
    * @returns Promise
@@ -67,38 +67,38 @@ class Subject {
 }
 
 const proxyHandler = {
-  get: (subject, name) => {
+  get: (document, name) => {
     // add all pending views (they are in the call stack
     // somewhere) as a listener
     for (let func of state.pendingViews) {
-      subject._listeners.add(func);
-      let subjects = func._subjects;
-      if (subjects === undefined) {
-        subjects = func._subjects = new Set();
+      document._listeners.add(func);
+      let documents = func._documents;
+      if (documents === undefined) {
+        documents = func._documents = new Set();
       }
-      subjects.add(subject);
+      documents.add(document);
     }
 
-    if (subject.hasOwnProperty(name)) {
-      return subject[name];
+    if (document.hasOwnProperty(name)) {
+      return document[name];
     }
 
-    if (subject._values === NOT_SET) {
+    if (document._values === NOT_SET) {
       throw NOT_SET;
     }
-    return subject._values[name];
+    return document._values[name];
   },
 };
 
 /**
- * Create a new Subject with ref observable
+ * Create a new Document with ref observable
  *
  * @param db RTDatabase instance
  * @param path
  */
-export function subject(db, path) {
+export function document(db, path) {
   const ref = db.fdb.ref(path);
-  const subject = new Subject(ref);
-  ref.on('value', subject.onValues);
-  return new Proxy(subject, proxyHandler);
+  const doc = new Document(ref);
+  ref.on('value', doc.onValues);
+  return new Proxy(doc, proxyHandler);
 }

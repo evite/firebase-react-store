@@ -3,14 +3,14 @@ import {NOT_SET} from './constants';
 
 function disposer(func) {
   return () => {
-    const subjects = func._subjects;
-    if (!subjects) return;
-    for (let subject of subjects) {
-      subject._listeners.delete(func);
-      if (subject._listeners.size === 0) {
-        // if the subject doesn't have any listeners, we
+    const documents = func._documents;
+    if (!documents) return;
+    for (let doc of documents) {
+      doc._listeners.delete(func);
+      if (doc._listeners.size === 0) {
+        // if the document doesn't have any listeners, we
         // should be able to turn it off? todo
-        subject.close();
+        doc.close();
       }
     }
   };
@@ -32,7 +32,7 @@ export function view(func) {
   } catch (e) {
     if (e !== NOT_SET) {
       // values are not set yet, but the access should
-      // have been added to the subject's listener list already,
+      // have been added to the document's listener list already,
       // so it'll just react later.
       throw e;
     }

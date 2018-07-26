@@ -1,7 +1,7 @@
 class State {
   /**
    * These are the functions active in the call stack that are currently
-   * executing. This is used to track either accesses to Subjects and
+   * executing. This is used to track either accesses to Documents and
    * (later) react to changes in them.
    */
   pendingViews = new Set();

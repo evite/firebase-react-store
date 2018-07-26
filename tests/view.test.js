@@ -3,8 +3,8 @@ import {rtdb} from './index';
 import {NOT_SET} from 'firebase-react-store/constants';
 
 test('write and receive updates for an int', async () => {
-  const subject = rtdb.get('/a');
-  subject.set({b: 0});
+  const document = rtdb.get('/a');
+  document.set({b: 0});
 
   let resolvers = [];
   let promises = [
@@ -12,21 +12,21 @@ test('write and receive updates for an int', async () => {
     new Promise((resolve, reject) => (resolvers[1] = resolve)),
   ];
   const disposer = view(() => {
-    resolvers[subject.b]();
+    resolvers[document.b]();
   });
   // our view should be a listener now
-  expect(subject._listeners.size).toBe(1);
+  expect(document._listeners.size).toBe(1);
 
   await promises[0];
 
-  await subject.update({b: 1});
+  await document.update({b: 1});
   await promises[1];
 
   disposer();
 });
 
 test('test incomplete view', async () => {
-  const subject = rtdb.get('/b');
+  const document = rtdb.get('/b');
 
   let resolvers = [];
   let promises = [
@@ -34,19 +34,19 @@ test('test incomplete view', async () => {
     new Promise((resolve, reject) => (resolvers[1] = resolve)),
   ];
   const disposer = view(() => {
-    resolvers[subject.b]();
+    resolvers[document.b]();
   });
   // no values have been set yet, so the view should not have been
   // able to actually complete
-  expect(subject._values).toBe(NOT_SET);
+  expect(document._values).toBe(NOT_SET);
 
   // but the view should be a listener
-  expect(subject._listeners.size).toBe(1);
+  expect(document._listeners.size).toBe(1);
 
-  await subject.set({b: 0});
+  await document.set({b: 0});
   await promises[0];
 
-  await subject.set({b: 1});
+  await document.set({b: 1});
   await promises[1];
 
   disposer();

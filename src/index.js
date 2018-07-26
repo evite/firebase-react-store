@@ -1,5 +1,5 @@
 import {RTDatabase} from './database';
 import {view} from './view';
-import {subject} from './subject';
+import {document} from './document';
 
-export {view, RTDatabase, subject};
+export {view, RTDatabase, document};

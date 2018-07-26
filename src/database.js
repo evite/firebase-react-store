@@ -1,5 +1,5 @@
 import {firebase} from './firebase-init';
-import {subject} from './subject';
+import {document} from './document';
 
 export class RTDatabase {
   constructor(config) {
@@ -17,6 +17,6 @@ export class RTDatabase {
   }
 
   get = (path) => {
-    return subject(this, path);
+    return document(this, path);
   };
 }
