@@ -1,18 +1,22 @@
 import {state} from './state';
 import {NOT_SET} from './constants';
 
+export function dispose(func) {
+  const documents = func._documents;
+  if (!documents) return;
+  for (let doc of documents) {
+    doc._listeners.delete(func);
+    if (doc._listeners.size === 0) {
+      // if the document doesn't have any listeners, we
+      // should be able to turn it off? todo
+      doc.close();
+    }
+  }
+}
+
 function disposer(func) {
   return () => {
-    const documents = func._documents;
-    if (!documents) return;
-    for (let doc of documents) {
-      doc._listeners.delete(func);
-      if (doc._listeners.size === 0) {
-        // if the document doesn't have any listeners, we
-        // should be able to turn it off? todo
-        doc.close();
-      }
-    }
+    dispose(func);
   };
 }
 
