@@ -12,7 +12,7 @@ test('write and receive updates for an int', async () => {
     new Promise((resolve, reject) => (resolvers[1] = resolve)),
   ];
   const disposer = view(() => {
-    resolvers[document.b]();
+    resolvers[document.value.b]();
   });
   // our view should be a listener now
   expect(document._listeners.size).toBe(1);
@@ -34,11 +34,11 @@ test('test incomplete view', async () => {
     new Promise((resolve, reject) => (resolvers[1] = resolve)),
   ];
   const disposer = view(() => {
-    resolvers[document.b]();
+    resolvers[document.value.b]();
   });
   // no values have been set yet, so the view should not have been
   // able to actually complete
-  expect(document._values).toBe(NOT_SET);
+  expect(document._value).toBe(NOT_SET);
 
   // but the view should be a listener
   expect(document._listeners.size).toBe(1);

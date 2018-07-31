@@ -1,18 +1,20 @@
 import {NOT_SET} from './constants';
 import {state} from './state';
 
-class Document {
-  constructor(ref) {
-    this._ref = ref;
-    this._values = NOT_SET;
+export class Document {
+  constructor(db, path) {
+    this._ref = db.fdb.ref(path);
+    this._value = NOT_SET;
     this._listeners = new Set();
     this._valuePromise = new Promise((resolve) => {
       this._resolveValues = resolve;
     });
+
+    this._ref.on('value', this._onValueHandler);
   }
 
-  onValues = (response) => {
-    this._values = response.val();
+  _onValueHandler = (response) => {
+    this._value = response.val();
     this._resolveValues();
 
     for (let listener of this._listeners) {
@@ -24,9 +26,25 @@ class Document {
     }
   };
 
-  values = async () => {
+  get value() {
+    // add all pending views (they are in the call stack
+    // somewhere) as a listener
+    for (let func of state.pendingViews) {
+      this._listeners.add(func);
+      let documents = func._documents;
+      if (documents === undefined) {
+        documents = func._documents = new Set();
+      }
+      documents.add(this);
+    }
+
+    if (this._value === NOT_SET) throw NOT_SET;
+    return this._value;
+  }
+
+  onValues = async () => {
     await this._valuePromise;
-    return Object.assign({}, this._values);
+    return Object.assign({}, this._value);
   };
 
   /**
@@ -39,6 +57,16 @@ class Document {
    */
   set = (values) => {
     return this._ref.set(values);
+  };
+
+  /**
+   * Push a new child value without conflicts
+   *
+   * @param obj
+   * @returns Promise
+   */
+  push = (obj) => {
+    return this._ref.push(obj);
   };
 
   /**
@@ -64,41 +92,4 @@ class Document {
   close = () => {
     this.ref && this.ref.off('value');
   };
-}
-
-const proxyHandler = {
-  get: (document, name) => {
-    // add all pending views (they are in the call stack
-    // somewhere) as a listener
-    for (let func of state.pendingViews) {
-      document._listeners.add(func);
-      let documents = func._documents;
-      if (documents === undefined) {
-        documents = func._documents = new Set();
-      }
-      documents.add(document);
-    }
-
-    if (document.hasOwnProperty(name)) {
-      return document[name];
-    }
-
-    if (document._values === NOT_SET) {
-      throw NOT_SET;
-    }
-    return document._values[name];
-  },
-};
-
-/**
- * Create a new Document with ref observable
- *
- * @param db RTDatabase instance
- * @param path
- */
-export function document(db, path) {
-  const ref = db.fdb.ref(path);
-  const doc = new Document(ref);
-  ref.on('value', doc.onValues);
-  return new Proxy(doc, proxyHandler);
 }

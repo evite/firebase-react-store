@@ -54,7 +54,6 @@ export function observer(Class) {
   // on unmount we'll remove the listeners from all documents
   Object.defineProperty(Class, 'componentWillUnmount', {
     value: function() {
-      console.log('dispose');
       dispose(this._fireRender);
     },
     enumerable: false,

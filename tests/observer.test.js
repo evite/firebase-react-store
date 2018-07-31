@@ -13,7 +13,7 @@ test('a component re-renders on changes', async () => {
   class ReactiveView extends PureComponent {
     render() {
       renderCount += 1;
-      return <p>{doc.title}</p>;
+      return <p>{doc.value.title}</p>;
     }
   }
   const element = <ReactiveView />;
