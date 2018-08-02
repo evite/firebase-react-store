@@ -6,7 +6,8 @@
     "firebase": "^5.3.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "firebase-react-store": "@latest"
   },
   "scripts": {
     "start": "react-scripts start",
