@@ -1,0 +1,119 @@
+html, body, #root, .App {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  overflow: hidden;
+}
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 10vh;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.app-area {
+  height: 90vh;
+  width: 100vw;
+  margin: 0;
+  overflow: hidden;
+  background-color: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-list-container {
+  min-width: 300px;
+  padding: 10px 10px 50px 10px;
+  overflow: auto;
+  flex: 1;
+}
+
+.compose-message {
+  position: absolute;
+  bottom: 7px;
+  right: 0;
+  left: 0;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.compose-message-container {
+  background: white;
+  border-radius: 30px;
+  filter: drop-shadow(0 0 0.75rem lightgray);
+  padding: 10px 30px;
+}
+
+input {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid gray;
+  margin: 0 5px;
+  font-size: 1em;
+  padding: 4px;
+}
+
+label {
+  margin: 0 10px;
+}
+
+#message-name {
+  width: 100px;
+}
+#message-comment {
+  width: 200px;
+}
+
+.message {
+  display: flex;
+  text-align: left;
+  margin: .5em 0 0 0;
+  align-items: center;
+}
+
+.message-comment {
+  background-color: #039BE5;
+  border-radius: 20px;
+  padding: 8px 16px;
+  max-width: 80%;
+  margin: 0;
+  color: white;
+}
+
+.message-name {
+  margin: 0 10px 0 0;
+  height: 2.5em;
+  width: 2.5em;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  flex-shrink: 1;
+  align-self: flex-end;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.message-name-letter {
+  color: #039BE5;
+  font-size: 1.2em;
+}

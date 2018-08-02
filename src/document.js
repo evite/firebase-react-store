@@ -42,6 +42,10 @@ export class Document {
     return this._value;
   }
 
+  get path() {
+    return this._ref.path;
+  }
+
   onValues = async () => {
     await this._valuePromise;
     return Object.assign({}, this._value);

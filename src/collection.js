@@ -9,19 +9,23 @@ import React, {PureComponent} from 'react';
  * @param options
  */
 export function collectionObserver(options) {
-  if (!options || !options.document)
-    throw new Error("Collection requires a 'document' option.");
-  const ref = options.document._ref;
+  if (!options || !options.path)
+    throw new Error("Collection requires a 'path' option.");
+  if (!options.database)
+    throw new Error("Collection requires a 'database' option.");
 
   const decorator = (component) => {
     class CollectionObserver extends PureComponent {
-      static displayName = `collection-observer-${ref.toString()}`;
+      static displayName = 'collection-observer-';
 
       constructor(props) {
         super(props);
         this.collection = [];
 
-        let query = ref;
+        const doc = options.database.get(options.path);
+        let query = doc._ref;
+        CollectionObserver.displayName = `collection-observer-${query.toString()}`;
+
         if (options.limitToLast !== undefined) {
           query = query.limitToLast(options.limitToLast);
         }

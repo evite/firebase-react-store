@@ -5,7 +5,7 @@ import {NOT_SET} from 'firebase-react-store/constants';
 test('uninitialized subject throws NOT_SET', async () => {
   const doc = rtdb.get('/c');
   expect(() => {
-    console.log(doc.values.asdf);
+    console.log(doc.value.asdf);
   }).toThrow();
 
   doc.close();

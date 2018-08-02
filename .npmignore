@@ -2,3 +2,4 @@ coverage/
 tests/
 .idea/
 *.tgz
+demo/

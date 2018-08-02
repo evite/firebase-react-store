@@ -10,7 +10,7 @@ test('render a collection', async () => {
     doc.push({message: i});
   }
 
-  @collectionObserver({document: doc})
+  @collectionObserver({database: rtdb, path: doc.path})
   class MessageCollection extends PureComponent {
     render() {
       return this.props.collection.map((v) => v.value.message).join();
@@ -32,10 +32,7 @@ test('render last of a collection', async () => {
     doc.push({message: i});
   }
 
-  @collectionObserver({
-    document: doc,
-    limitToLast: 5,
-  })
+  @collectionObserver({database: rtdb, path: doc.path, limitToLast: 5})
   class MessageCollection extends PureComponent {
     render() {
       return this.props.collection.map((v) => v.value.message).join();
@@ -58,7 +55,8 @@ test('render first of a collection', async () => {
   }
 
   @collectionObserver({
-    document: doc,
+    database: rtdb,
+    path: doc.path,
     limitToFirst: 2,
   })
   class MessageCollection extends PureComponent {
@@ -88,7 +86,8 @@ test('remove one from a collection', async () => {
   }
 
   @collectionObserver({
-    document: doc,
+    database: rtdb,
+    path: doc.path,
   })
   class MessageCollection extends PureComponent {
     render() {
