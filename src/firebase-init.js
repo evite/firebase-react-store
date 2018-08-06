@@ -3,5 +3,6 @@
  */
 
 import {firebase} from '@firebase/app';
-import * as database from '@firebase/database';
+import '@firebase/auth';
+import '@firebase/database';
 export {firebase};

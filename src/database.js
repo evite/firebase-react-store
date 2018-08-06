@@ -1,4 +1,5 @@
 import {firebase} from './firebase-init';
+import {auth} from '@firebase/auth';
 import {Document} from './document';
 
 export class RTDatabase {
@@ -18,5 +19,9 @@ export class RTDatabase {
 
   get = (path) => {
     return new Document(this, path);
+  };
+
+  signInWithCustomToken = (token) => {
+    return firebase.auth().signInWithCustomToken(token);
   };
 }

@@ -9,10 +9,7 @@ import React, {PureComponent} from 'react';
  * @param options
  */
 export function collectionObserver(options) {
-  if (!options || !options.path)
-    throw new Error("Collection requires a 'path' option.");
-  if (!options.database)
-    throw new Error("Collection requires a 'database' option.");
+  options = options || {};
 
   const decorator = (component) => {
     class CollectionObserver extends PureComponent {
@@ -22,15 +19,22 @@ export function collectionObserver(options) {
         super(props);
         this.collection = [];
 
-        const doc = options.database.get(options.path);
+        const db = options.database || props.database;
+        const path = options.path || props.path;
+        if (!path) throw new Error("Collection requires a 'path' option.");
+        if (!db) throw new Error("Collection requires a 'database' option.");
+
+        const doc = db.get(path);
         let query = doc._ref;
         CollectionObserver.displayName = `collection-observer-${query.toString()}`;
 
-        if (options.limitToLast !== undefined) {
-          query = query.limitToLast(options.limitToLast);
+        const limitToLast = options.limitToLast || props.limitToLast;
+        if (limitToLast !== undefined) {
+          query = query.limitToLast(limitToLast);
         }
-        if (options.limitToFirst !== undefined) {
-          query = query.limitToFirst(options.limitToFirst);
+        const limitToFirst = options.limitToFirst || props.limitToFirst;
+        if (limitToFirst !== undefined) {
+          query = query.limitToFirst(limitToFirst);
         }
         this.query = query;
       }

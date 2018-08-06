@@ -25,6 +25,28 @@ test('render a collection', async () => {
   doc.close();
 });
 
+test('render a collection using props', async () => {
+  const doc = rtdb.get('/collection-render-a-collection');
+  await doc.remove();
+  for (let i = 0; i < 10; i++) {
+    doc.push({message: i});
+  }
+
+  @collectionObserver()
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection database={rtdb} path={doc.path} />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('0,1,2,3,4,5,6,7,8,9');
+
+  doc.close();
+});
+
 test('render last of a collection', async () => {
   const doc = rtdb.get('/collection-last-collection');
   await doc.remove();
@@ -114,6 +136,8 @@ test('collectionObserver required props', async () => {
     ran = true;
     @collectionObserver()
     class MessageCollection extends PureComponent {}
+    let testRender = renderer.create(element);
+    let output = testRender.toJSON();
   };
 
   expect(t).toThrow();
