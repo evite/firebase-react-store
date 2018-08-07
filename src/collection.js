@@ -88,9 +88,9 @@ export function collectionObserver(options) {
       };
 
       render() {
-        const newProps = {
+        const newProps = Object.assign({}, this.props, {
           collection: this.collection.slice(),
-        };
+        });
         return React.createElement(component, newProps);
       }
     }

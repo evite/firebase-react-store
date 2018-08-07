@@ -13,11 +13,12 @@ test('render a collection', async () => {
   @collectionObserver({database: rtdb, path: doc.path})
   class MessageCollection extends PureComponent {
     render() {
+      expect(this.props.normal).toBe('on');
       return this.props.collection.map((v) => v.value.message).join();
     }
   }
 
-  const element = <MessageCollection />;
+  const element = <MessageCollection normal="on" />;
   let testRender = renderer.create(element);
   let output = testRender.toJSON();
   expect(output).toBe('0,1,2,3,4,5,6,7,8,9');
