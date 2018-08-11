@@ -15,6 +15,8 @@ export class RTDatabase {
      * is written. `fdb` may not be available in future releases
      */
     this.fdb = firebase.database();
+
+    this.TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
   }
 
   get = (path) => {

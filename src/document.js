@@ -2,8 +2,12 @@ import {NOT_SET} from './constants';
 import {state} from './state';
 
 export class Document {
-  constructor(db, path) {
-    this._ref = db.fdb.ref(path);
+  constructor(ref_or_db, path) {
+    if (!path) {
+      this._ref = ref_or_db;
+    } else {
+      this._ref = ref_or_db.fdb.ref(path);
+    }
     this._value = NOT_SET;
     this._listeners = new Set();
     this._valuePromise = new Promise((resolve) => {
@@ -25,6 +29,10 @@ export class Document {
       }
     }
   };
+
+  get key() {
+    return this._ref.key;
+  }
 
   get value() {
     // add all pending views (they are in the call stack
@@ -69,8 +77,9 @@ export class Document {
    * @param obj
    * @returns Promise
    */
-  push = (obj) => {
-    return this._ref.push(obj);
+  push = async (obj) => {
+    const ref = await this._ref.push(obj);
+    return new Document(ref);
   };
 
   /**
