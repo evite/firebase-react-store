@@ -11,7 +11,16 @@ reliably keeping both in sync.
 Instead, FRS makes it possible to use Firebase through props just like
 a store, without additional mapping or configuration.
 
+## Installation
+
+```shell
+npm i --save firebase-react-store
+```
+
+CommonJS and ES6 modules are provided.
+
 ## Quick introduction
+
 ### Connecting
 ```js
 import {RTDatabase} from 'firebase-react-store';
