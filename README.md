@@ -4,7 +4,7 @@ Easily use Firebase like a store.
 
 Often project that use Firebase will map data from the real-time
 database into their own project store (or component) manually using
-several React lifecycle methods.  Sometimes causing a two-way data
+several React lifecycle methods.  Sometimes this may even cause a two-way data
 binding problem when processing updates to the local store and
 reliably keeping both in sync.
 
