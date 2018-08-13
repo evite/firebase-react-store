@@ -10,7 +10,7 @@ const version = pkg.version;
 
 execSync('npm publish');
 
-execSync(`$git tag v${version}`);
+execSync(`git tag v${version}`);
 execSync('git push --tags');
 
 console.log('Published!');
