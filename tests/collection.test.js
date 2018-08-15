@@ -144,3 +144,38 @@ test('collectionObserver required props', async () => {
   expect(t).toThrow();
   expect(ran).toBe(true);
 });
+
+test('collection handles modified child', async () => {
+  const doc = rtdb.get('/collection-remove-one');
+  await doc.remove();
+  let doc5 = null;
+  for (let i = 0; i < 10; i++) {
+    if (i === 5) {
+      doc5 = await doc.push({message: i});
+    } else {
+      doc.push({message: i});
+    }
+  }
+
+  @collectionObserver({
+    database: rtdb,
+    path: doc.path,
+  })
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('0,1,2,3,4,5,6,7,8,9');
+
+  await doc5.set({message: 'updated'});
+
+  output = testRender.toJSON();
+  expect(output).toBe('0,1,2,3,4,updated,6,7,8,9');
+
+  doc.close();
+});

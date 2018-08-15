@@ -41,6 +41,7 @@ export function collectionObserver(options) {
 
       componentDidMount() {
         this.query.on('child_added', this.onChildAdded);
+        this.query.on('child_changed', this.onChildChanged);
         this.query.on('child_removed', this.onChildRemoved);
       }
 
@@ -54,25 +55,21 @@ export function collectionObserver(options) {
           key: childSnapshot.key,
           value: childSnapshot.val(),
         };
-        // if (collection.length === 0) {
-        //   collection.push(newObj);
-        //   return;
-        // }
-
-        // do we need? might be slow...
-        // for (let idx = 0; idx < collection.length; idx++) {
-        //   const obj = collection[idx];
-        //   if (!obj) continue;
-        //   if (idx + 1 === collection.length) continue; // do push instead
-        //   if (obj.key === prevChildKey) {
-        //     collection.slice(idx + 1, 0, newObj);
-        //     this.setState({collection: collection});
-        //     return;
-        //   }
-        // }
 
         collection.push(newObj);
         this.forceUpdate();
+      };
+
+      onChildChanged = (snapshot) => {
+        for (let idx = 0; idx < this.collection.length; idx++) {
+          const obj = this.collection[idx];
+          if (!obj) continue;
+          if (snapshot.key === obj.key) {
+            obj.value = snapshot.val();
+            this.forceUpdate();
+            return;
+          }
+        }
       };
 
       onChildRemoved = (oldChildSnapshot) => {
