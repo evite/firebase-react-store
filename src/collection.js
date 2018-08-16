@@ -18,6 +18,7 @@ export function collectionObserver(options) {
       constructor(props) {
         super(props);
         this.collection = [];
+        this.state = {error: null};
 
         const db = options.database || props.database;
         const path = options.path || props.path;
@@ -40,14 +41,20 @@ export function collectionObserver(options) {
       }
 
       componentDidMount() {
-        this.query.on('child_added', this.onChildAdded);
-        this.query.on('child_changed', this.onChildChanged);
-        this.query.on('child_removed', this.onChildRemoved);
+        this.mounted = true;
+        this.query.on('child_added', this.onChildAdded, this.onQueryError);
+        this.query.on('child_changed', this.onChildChanged, this.onQueryError);
+        this.query.on('child_removed', this.onChildRemoved, this.onQueryError);
       }
 
       componentWillUnmount() {
+        this.mounted = false;
         this.query.off();
       }
+
+      onQueryError = (error) => {
+        this.setState({error: error});
+      };
 
       onChildAdded = (childSnapshot, prevChildKey) => {
         const collection = this.collection;
@@ -57,7 +64,7 @@ export function collectionObserver(options) {
         };
 
         collection.push(newObj);
-        this.forceUpdate();
+        this.mounted && this.forceUpdate();
       };
 
       onChildChanged = (snapshot) => {
@@ -66,7 +73,7 @@ export function collectionObserver(options) {
           if (!obj) continue;
           if (snapshot.key === obj.key) {
             obj.value = snapshot.val();
-            this.forceUpdate();
+            this.mounted && this.forceUpdate();
             return;
           }
         }
@@ -78,7 +85,7 @@ export function collectionObserver(options) {
           if (!obj) continue;
           if (oldChildSnapshot.key === obj.key) {
             this.collection.splice(idx, 1);
-            this.forceUpdate();
+            this.mounted && this.forceUpdate();
             return;
           }
         }
@@ -88,6 +95,7 @@ export function collectionObserver(options) {
         const newProps = Object.assign({}, this.props, {
           collection: this.collection.slice(),
         });
+        newProps.collectionError = this.state.error;
         return React.createElement(component, newProps);
       }
     }

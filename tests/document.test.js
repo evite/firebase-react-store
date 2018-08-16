@@ -25,6 +25,11 @@ test('key works', async () => {
   expect(doc.key).toBe('a-key-doc');
 });
 
+test('path works', async () => {
+  const doc = rtdb.get('/a/b/c/d/e');
+  expect(doc.path).toBe('/a/b/c/d/e');
+});
+
 test('document push returns a document', async () => {
   const doc = rtdb.get('/a-push-doc');
   const ret = await doc.push({hmm: 1});

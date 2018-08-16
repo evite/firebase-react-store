@@ -51,7 +51,7 @@ export class Document {
   }
 
   get path() {
-    return this._ref.path;
+    return this._ref.toString().substring(this._ref.root.toString().length - 1);
   }
 
   onValues = async () => {
