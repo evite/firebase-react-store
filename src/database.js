@@ -3,7 +3,17 @@ import {auth} from '@firebase/auth';
 import {Document} from './document';
 
 export class RTDatabase {
+  static TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
+
+  // auth persistence modes, see https://firebase.google.com/docs/auth/web/auth-state-persistence
+  static persistence = {
+    NONE: 'none',
+    LOCAL: 'local',
+    SESSION: 'session',
+  };
+
   constructor(config) {
+    this.authPersistence = config.persistence || RTDatabase.persistence.NONE;
     firebase.initializeApp(config);
 
     /**
@@ -15,15 +25,18 @@ export class RTDatabase {
      * is written. `fdb` may not be available in future releases
      */
     this.fdb = firebase.database();
-
-    this.TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
   }
 
   get = (path) => {
     return new Document(this, path);
   };
 
-  signInWithCustomToken = (token) => {
+  signInWithCustomToken = async (token) => {
+    await firebase.auth().setPersistence(this.authPersistence);
     return firebase.auth().signInWithCustomToken(token);
   };
+
+  static signOut() {
+    return firebase.auth().signOut();
+  }
 }
