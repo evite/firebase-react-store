@@ -51,3 +51,8 @@ test('test incomplete view', async () => {
 
   disposer();
 });
+
+test('TIMESTAMP to be defined', () => {
+  const timestamp = rtdb.TIMESTAMP;
+  expect(timestamp).toBeDefined();
+});
