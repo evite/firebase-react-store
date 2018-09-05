@@ -3,7 +3,7 @@ import {auth} from '@firebase/auth';
 import {Document} from './document';
 
 export class RTDatabase {
-  static TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
+  TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
 
   // auth persistence modes, see https://firebase.google.com/docs/auth/web/auth-state-persistence
   static persistence = {
