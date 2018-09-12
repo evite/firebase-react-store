@@ -36,6 +36,14 @@ export class RTDatabase {
     return firebase.auth().signInWithCustomToken(token);
   };
 
+  goOffline = () => {
+    return this.fdb.goOffline();
+  };
+
+  goOnline = () => {
+    return this.fdb.goOnline();
+  };
+
   static signOut() {
     return firebase.auth().signOut();
   }

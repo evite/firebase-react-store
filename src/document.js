@@ -102,6 +102,10 @@ export class Document {
     return this._ref.remove();
   };
 
+  onDisconnect = () => {
+    return this._ref.onDisconnect();
+  };
+
   close = () => {
     this.ref && this.ref.off('value');
   };
