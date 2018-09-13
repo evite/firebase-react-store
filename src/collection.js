@@ -29,6 +29,18 @@ export function collectionObserver(options) {
         let query = doc._ref;
         CollectionObserver.displayName = `collection-observer-${query.toString()}`;
 
+        const orderByKey = options.orderByKey || props.orderByKey;
+        if (orderByKey) {
+          query = query.orderByKey();
+        }
+        const orderByValue = options.orderByValue || props.orderByValue;
+        if (orderByValue) {
+          query = query.orderByValue();
+        }
+        const orderByChild = options.orderByChild || props.orderByChild;
+        if (orderByChild) {
+          query = query.orderByChild(orderByChild);
+        }
         const limitToLast = options.limitToLast || props.limitToLast;
         if (limitToLast !== undefined) {
           query = query.limitToLast(limitToLast);

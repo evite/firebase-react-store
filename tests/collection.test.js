@@ -179,3 +179,81 @@ test('collection handles modified child', async () => {
 
   doc.close();
 });
+
+test('order by child', async () => {
+  const doc = rtdb.get('/collection-order-by-child');
+  await doc.remove();
+  for (let i = 9; i > 0; i--) {
+    doc.push({message: i});
+  }
+
+  @collectionObserver({
+    database: rtdb,
+    path: doc.path,
+    orderByChild: 'message',
+  })
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('1,2,3,4,5,6,7,8,9');
+
+  doc.close();
+});
+
+test('order by key', async () => {
+  const doc = rtdb.get('/collection-order-by-child');
+  await doc.remove();
+  for (let i = 0; i < 10; i++) {
+    doc.push({message: i});
+  }
+
+  @collectionObserver({
+    database: rtdb,
+    path: doc.path,
+    orderByKey: true,
+  })
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('0,1,2,3,4,5,6,7,8,9');
+
+  doc.close();
+});
+
+test('order by value', async () => {
+  const doc = rtdb.get('/collection-order-by-child');
+  await doc.remove();
+  for (let i = 0; i < 10; i++) {
+    doc.push({message: i});
+  }
+
+  @collectionObserver({
+    database: rtdb,
+    path: doc.path,
+    orderByValue: true,
+  })
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('0,1,2,3,4,5,6,7,8,9');
+
+  doc.close();
+});
