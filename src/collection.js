@@ -17,11 +17,16 @@ export function collectionObserver(options) {
 
       constructor(props) {
         super(props);
-        this.collection = [];
         this.state = {error: null};
+        this.runQuery();
+      }
 
-        const db = options.database || props.database;
-        const path = options.path || props.path;
+      runQuery = () => {
+        if (this.query) this.query.off();
+        this.collection = [];
+
+        const db = options.database || this.props.database;
+        const path = options.path || this.props.path;
         if (!path) throw new Error("Collection requires a 'path' option.");
         if (!db) throw new Error("Collection requires a 'database' option.");
 
@@ -29,34 +34,40 @@ export function collectionObserver(options) {
         let query = doc._ref;
         CollectionObserver.displayName = `collection-observer-${query.toString()}`;
 
-        const orderByKey = options.orderByKey || props.orderByKey;
+        const orderByKey = options.orderByKey || this.props.orderByKey;
         if (orderByKey) {
           query = query.orderByKey();
         }
-        const orderByValue = options.orderByValue || props.orderByValue;
+        const orderByValue = options.orderByValue || this.props.orderByValue;
         if (orderByValue) {
           query = query.orderByValue();
         }
-        const orderByChild = options.orderByChild || props.orderByChild;
+        const orderByChild = options.orderByChild || this.props.orderByChild;
         if (orderByChild) {
           query = query.orderByChild(orderByChild);
         }
-        const limitToLast = options.limitToLast || props.limitToLast;
+        const limitToLast = options.limitToLast || this.props.limitToLast;
         if (limitToLast !== undefined) {
           query = query.limitToLast(limitToLast);
         }
-        const limitToFirst = options.limitToFirst || props.limitToFirst;
+        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
         if (limitToFirst !== undefined) {
           query = query.limitToFirst(limitToFirst);
         }
         this.query = query;
-      }
+        if (this.mounted) this.listenToQuery();
+      };
 
-      componentDidMount() {
-        this.mounted = true;
+      listenToQuery = () => {
         this.query.on('child_added', this.onChildAdded, this.onQueryError);
         this.query.on('child_changed', this.onChildChanged, this.onQueryError);
         this.query.on('child_removed', this.onChildRemoved, this.onQueryError);
+        this.query.on('child_moved', this.onChildMoved, this.onQueryError);
+      };
+
+      componentDidMount() {
+        this.mounted = true;
+        this.listenToQuery();
       }
 
       componentWillUnmount() {
@@ -69,13 +80,25 @@ export function collectionObserver(options) {
       };
 
       onChildAdded = (childSnapshot, prevChildKey) => {
-        const collection = this.collection;
         const newObj = {
           key: childSnapshot.key,
           value: childSnapshot.val(),
         };
 
-        collection.push(newObj);
+        let previousFound = false;
+        if (prevChildKey) {
+          for (let i = 0; i < this.collection.length - 1; i++) {
+            let obj = this.collection[i];
+            if (obj.key === prevChildKey) {
+              previousFound = true;
+              this.collection.splice(i + 1, 0, newObj);
+            }
+          }
+        }
+
+        if (!previousFound) {
+          this.collection.push(newObj);
+        }
         this.mounted && this.forceUpdate();
       };
 
@@ -101,6 +124,10 @@ export function collectionObserver(options) {
             return;
           }
         }
+      };
+
+      onChildMoved = () => {
+        this.runQuery();
       };
 
       render() {

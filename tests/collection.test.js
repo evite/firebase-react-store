@@ -206,6 +206,53 @@ test('order by child', async () => {
   doc.close();
 });
 
+test('order by child', async () => {
+  const doc = rtdb.get('/collection-order-by-child');
+  await doc.remove();
+  for (let i = 9; i > 0; i--) {
+    await doc.push({message: i});
+  }
+  await doc.push({message: false});
+  await doc.push({message: true});
+
+  @collectionObserver({
+    database: rtdb,
+    path: doc.path,
+    orderByChild: 'message',
+  })
+  class MessageCollection extends PureComponent {
+    render() {
+      return this.props.collection.map((v) => v.value.message).join();
+    }
+  }
+
+  const element = <MessageCollection />;
+  let testRender = renderer.create(element);
+  let output = testRender.toJSON();
+  expect(output).toBe('false,true,1,2,3,4,5,6,7,8,9');
+
+  // test adding
+  await doc.push({message: false});
+  await doc.push({message: true});
+  output = testRender.toJSON();
+  expect(output).toBe('false,false,true,true,1,2,3,4,5,6,7,8,9');
+
+  // test child modification
+  for (let key of Object.keys(doc.value)) {
+    const value = doc.value[key];
+    if (value.message === 5) {
+      const five = rtdb.get('/collection-order-by-child/' + key);
+      await five.set({message: 'test'});
+      break;
+    }
+  }
+
+  output = testRender.toJSON();
+  expect(output).toBe('false,false,true,true,1,2,3,4,6,7,8,9,test');
+
+  doc.close();
+});
+
 test('order by key', async () => {
   const doc = rtdb.get('/collection-order-by-child');
   await doc.remove();
