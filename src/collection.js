@@ -19,6 +19,10 @@ export function collectionObserver(options) {
         super(props);
         this.state = {error: null};
         this.runQuery();
+
+        const limitToLast = options.limitToLast || this.props.limitToLast;
+        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
+        this.limit = limitToLast || limitToFirst || 50;
       }
 
       runQuery = () => {
@@ -130,9 +134,38 @@ export function collectionObserver(options) {
         this.runQuery();
       };
 
+      /**
+       * Add to the collection in the direction of the query
+       *
+       * This is meant to be used by infinite scrolling components
+       */
+      onScroll = () => {
+        const limitToLast = options.limitToLast || this.props.limitToLast;
+        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
+        if (limitToLast) {
+          options.limitToLast = limitToLast + this.limit;
+        } else if (limitToFirst) {
+          options.limitToFirst = limitToFirst + this.limit;
+        }
+        this.runQuery();
+      };
+
+      setLimitToLast = (limit) => {
+        options.limitToLast = limit;
+        this.runQuery();
+      };
+
+      setLimitToFirst = (limit) => {
+        options.limitToFirst = limit;
+        this.runQuery();
+      };
+
       render() {
         const newProps = Object.assign({}, this.props, {
           collection: this.collection.slice(),
+          scrollCollection: this.onScroll,
+          setLimitToLast: this.setLimitToLast,
+          setLimitToFirst: this.setLimitToFirst,
         });
         newProps.collectionError = this.state.error;
         return React.createElement(component, newProps);
