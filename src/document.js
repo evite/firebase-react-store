@@ -10,11 +10,12 @@ export class Document {
     }
     this._value = NOT_SET;
     this._listeners = new Set();
-    this._valuePromise = new Promise((resolve) => {
+    this._valuePromise = new Promise((resolve, reject) => {
       this._resolveValues = resolve;
+      this._rejectValues = reject;
     });
 
-    this._ref.on('value', this._onValueHandler);
+    this._ref.on('value', this._onValueHandler, this._onErrorHandler);
   }
 
   _onValueHandler = (response) => {
@@ -28,6 +29,10 @@ export class Document {
         console.error(e);
       }
     }
+  };
+
+  _onErrorHandler = (error) => {
+    this._rejectValues(error);
   };
 
   get key() {
