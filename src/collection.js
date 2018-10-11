@@ -130,8 +130,23 @@ export function collectionObserver(options) {
         }
       };
 
-      onChildMoved = () => {
-        this.runQuery();
+      onChildMoved = (snapshot, previousChildKey) => {
+        const newCollection = [];
+        let movedItem = {key: snapshot.key, value: snapshot.val()};
+
+        for (let item of this.collection) {
+          if (item.key === snapshot.key) {
+            continue;
+          }
+          newCollection.push(item);
+          if (item.key === previousChildKey) {
+            newCollection.push(movedItem);
+            movedItem = null;
+          }
+        }
+
+        if (movedItem) newCollection.push(movedItem);
+        this.collection = newCollection;
       };
 
       /**
