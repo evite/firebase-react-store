@@ -1,8 +1,8 @@
 {
   "presets": [
-    "react",
+    "@babel/preset-react",
     [
-      "env",
+      "@babel/env",
       {
         "targets": {
           "browsers": [
@@ -16,7 +16,7 @@
     ]
   ],
   "plugins": [
-    "transform-decorators-legacy",
+    ["@babel/plugin-proposal-decorators", {"legacy": true}],
     "transform-class-properties",
     [
       "module-resolver",
@@ -33,9 +33,9 @@
   "env": {
     "test": {
       "presets": [
-        "react",
+        "@babel/preset-react",
         [
-          "env",
+          "@babel/env",
           {
             "modules": "commonjs",
             "targets": {

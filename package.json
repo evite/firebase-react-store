@@ -1,7 +1,7 @@
 {
   "name": "firebase-react-store",
-  "version": "0.1.11",
-  "description": "Seemless React firebase integration",
+  "version": "0.2.0",
+  "description": "Seamless React firebase integration",
   "module": "dist/firebase-react-store.js",
   "main": "dist/firebase-react-store.cjs.js",
   "scripts": {
@@ -23,24 +23,27 @@
   },
   "homepage": "https://github.com/evite/firebase-react-store#readme",
   "devDependencies": {
-    "babel-jest": "^23.4.0",
-    "babel-plugin-external-helpers": "^6.22.0",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-external-helpers": "^7.2.0",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-jest": "^24.9.0",
     "babel-plugin-module-resolver": "^3.1.1",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "firebase-server": "^1.0.0-rc.2",
+    "firebase-server": "^1.0.2",
     "fs-extra": "^7.0.0",
-    "jest": "^23.4.1",
+    "jest": "^24.9.0",
+    "jest-cli": "^24.9.0",
     "react-test-renderer": "^16.4.1",
-    "rollup": "^0.62.0",
-    "rollup-plugin-auto-external": "^1.2.0",
-    "rollup-plugin-babel": "^3.0.7"
+    "rollup": "^1.20.1",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-babel": "^4.3.3"
   },
   "dependencies": {
     "firebase": "^5.2.0",
+    "node-pre-gyp": "^0.13.0",
     "react": ">=15.0.0"
   },
   "jest": {
