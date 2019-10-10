@@ -43,7 +43,9 @@
   },
   "dependencies": {
     "firebase": "^5.2.0",
-    "node-pre-gyp": "^0.13.0",
+    "node-pre-gyp": "^0.13.0"
+  },
+  "peerDependencies": {
     "react": ">=15.0.0"
   },
   "jest": {
