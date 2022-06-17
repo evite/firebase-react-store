@@ -1,5 +1,22 @@
-import React, {PureComponent} from 'react';
+import React, {FunctionComponent, PureComponent} from 'react';
+import { query, orderByKey, orderByValue, orderByChild, off, limitToLast, limitToFirst } from 'firebase/database';
+import { onChildAdded, onChildChanged, onChildMoved, onChildRemoved } from 'firebase/database';
+import type { Query, QueryConstraint } from 'firebase/database';
+import {RTDatabase} from './database';
+import {Document} from './document';
+import {DataSnapshot} from '@firebase/database';
 
+type Args = {
+  database?: RTDatabase;
+  path?: string;
+  orderByKey?: boolean;
+  orderByValue?: boolean;
+  orderByChild?: string;
+  limitToLast?: number;
+  limitToFirst?: number;
+}
+
+type PropTypes = Args;
 /**
  * This function/decorator creates a HOC that wraps the given
  * component and listens to collection events.
@@ -8,14 +25,16 @@ import React, {PureComponent} from 'react';
  *
  * @param options
  */
-export function collectionObserver(options) {
-  options = options || {};
-
-  const decorator = (component) => {
-    class CollectionObserver extends PureComponent {
+export const collectionObserver: (options?: Args) => (component: React.FunctionComponent<PropTypes>) => any = (options: Args = {}) => {
+  const decorator = (component: FunctionComponent<PropTypes>) => {
+    class CollectionObserver extends PureComponent<PropTypes, { error: unknown }> {
       static displayName = 'collection-observer-';
+      mounted?: boolean;
+      query?: Query;
+      limit: number;
+      collection: any[] = [];
 
-      constructor(props) {
+      constructor(props: PropTypes) {
         super(props);
         this.state = {error: null};
         this.runQuery();
@@ -26,47 +45,50 @@ export function collectionObserver(options) {
       }
 
       runQuery = () => {
-        if (this.query) this.query.off();
+        if (this.query) off(this.query);
         this.collection = [];
 
-        const db = options.database || this.props.database;
-        const path = options.path || this.props.path;
+        const props = { ...this.props, ...options }
+        const db = props.database;
+        const path = props.path;
+
         if (!path) throw new Error("Collection requires a 'path' option.");
         if (!db) throw new Error("Collection requires a 'database' option.");
 
-        const doc = db.get(path);
-        let query = doc._ref;
-        CollectionObserver.displayName = `collection-observer-${query.toString()}`;
+        const queryConstraints: QueryConstraint[] = [];
 
-        const orderByKey = options.orderByKey || this.props.orderByKey;
-        if (orderByKey) {
-          query = query.orderByKey();
+        if (props.orderByKey) {
+          queryConstraints.push(orderByKey());
         }
-        const orderByValue = options.orderByValue || this.props.orderByValue;
-        if (orderByValue) {
-          query = query.orderByValue();
+
+        if (props.orderByValue) {
+          queryConstraints.push(orderByValue());
         }
-        const orderByChild = options.orderByChild || this.props.orderByChild;
-        if (orderByChild) {
-          query = query.orderByChild(orderByChild);
+        if (props.orderByChild) {
+          queryConstraints.push(orderByChild(props.orderByChild));
         }
-        const limitToLast = options.limitToLast || this.props.limitToLast;
-        if (limitToLast !== undefined) {
-          query = query.limitToLast(limitToLast);
+
+        if (!!props.limitToLast) {
+          // @ts-ignore
+          queryConstraints.push(limitToLast(props.limitToLast))
         }
-        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
-        if (limitToFirst !== undefined) {
-          query = query.limitToFirst(limitToFirst);
+        if (!!props.limitToFirst) {
+          // @ts-ignore
+          queryConstraints.push(limitToFirst(props.limitToFirst))
         }
-        this.query = query;
+
+        const doc: Document = db.get(path);
+        this.query = query(doc._ref, ...queryConstraints);
+
+        CollectionObserver.displayName = `collection-observer-${this.query.toString()}`;
         if (this.mounted) this.listenToQuery();
       };
 
       listenToQuery = () => {
-        this.query.on('child_added', this.onChildAdded, this.onQueryError);
-        this.query.on('child_changed', this.onChildChanged, this.onQueryError);
-        this.query.on('child_removed', this.onChildRemoved, this.onQueryError);
-        this.query.on('child_moved', this.onChildMoved, this.onQueryError);
+        onChildAdded(this.query!, this.onChildAdded, this.onQueryError);
+        onChildChanged(this.query!, this.onChildChanged, this.onQueryError);
+        onChildRemoved(this.query!, this.onChildRemoved, this.onQueryError);
+        onChildMoved(this.query!, this.onChildMoved, this.onQueryError);
       };
 
       componentDidMount() {
@@ -76,14 +98,14 @@ export function collectionObserver(options) {
 
       componentWillUnmount() {
         this.mounted = false;
-        this.query.off();
+        off(this.query!);
       }
 
-      onQueryError = (error) => {
+      onQueryError = (error: unknown) => {
         this.setState({error: error});
       };
 
-      onChildAdded = (childSnapshot, prevChildKey) => {
+      onChildAdded = (childSnapshot: DataSnapshot, prevChildKey?: string | null) => {
         const newObj = {
           key: childSnapshot.key,
           value: childSnapshot.val(),
@@ -106,7 +128,7 @@ export function collectionObserver(options) {
         this.mounted && this.forceUpdate();
       };
 
-      onChildChanged = (snapshot) => {
+      onChildChanged = (snapshot: DataSnapshot) => {
         for (let idx = 0; idx < this.collection.length; idx++) {
           const obj = this.collection[idx];
           if (!obj) continue;
@@ -118,7 +140,7 @@ export function collectionObserver(options) {
         }
       };
 
-      onChildRemoved = (oldChildSnapshot) => {
+      onChildRemoved = (oldChildSnapshot: DataSnapshot) => {
         for (let idx = 0; idx < this.collection.length; idx++) {
           const obj = this.collection[idx];
           if (!obj) continue;
@@ -130,9 +152,9 @@ export function collectionObserver(options) {
         }
       };
 
-      onChildMoved = (snapshot, previousChildKey) => {
+      onChildMoved = (snapshot: DataSnapshot, previousChildKey?: string | null) => {
         const newCollection = [];
-        let movedItem = {key: snapshot.key, value: snapshot.val()};
+        let movedItem: object | null = {key: snapshot.key, value: snapshot.val()};
 
         for (let item of this.collection) {
           if (item.key === snapshot.key) {
@@ -165,12 +187,12 @@ export function collectionObserver(options) {
         this.runQuery();
       };
 
-      setLimitToLast = (limit) => {
+      setLimitToLast = (limit: number) => {
         options.limitToLast = limit;
         this.runQuery();
       };
 
-      setLimitToFirst = (limit) => {
+      setLimitToFirst = (limit: number) => {
         options.limitToFirst = limit;
         this.runQuery();
       };
@@ -181,8 +203,8 @@ export function collectionObserver(options) {
           scrollCollection: this.onScroll,
           setLimitToLast: this.setLimitToLast,
           setLimitToFirst: this.setLimitToFirst,
+          collectionError: this.state.error,
         });
-        newProps.collectionError = this.state.error;
         return React.createElement(component, newProps);
       }
     }
@@ -191,4 +213,4 @@ export function collectionObserver(options) {
   };
 
   return decorator;
-}
+};
