@@ -27,7 +27,7 @@ export class RTDatabase {
 
   signInWithCustomToken = async (token: string) => {
     const auth = getAuth();
-    await auth.setPersistence(this.authPersistence)
+    // await auth.setPersistence(this.authPersistence)
     return signInWithCustomToken(auth, token)
   };
 

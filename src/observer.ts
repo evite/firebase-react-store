@@ -3,14 +3,12 @@ import {NOT_SET} from './constants';
 import {Component, ComponentClass, FunctionComponent, PureComponent} from 'react';
 import {dispose} from './view';
 
-type VoidFunction = () => void;
-type AnyFunction = () => any;
-
-function reactiveRender(fireRender: VoidFunction, originalRender: AnyFunction) {
-  state.addPendingView(fireRender);
+function reactiveRender(this: any) {
+  state.addPendingView(this._fireRender);
 
   try {
-    return originalRender();
+    const result = this._originalRender();
+    return result;
   } catch (e) {
     if (e !== NOT_SET) {
       // values are not set yet, but the access should
@@ -21,7 +19,7 @@ function reactiveRender(fireRender: VoidFunction, originalRender: AnyFunction) {
       throw e;
     }
   } finally {
-    state.removePendingView(fireRender);
+    state.removePendingView(this._fireRender);
   }
 }
 
@@ -67,7 +65,8 @@ export function observer(Class: FunctionComponent | ComponentClass): any {
       this.forceUpdate();
     };
     this._originalRender = originalRender;
-    return reactiveRender(this._fireRender, this._originalRender).bind(this);
+    this.render = reactiveRender.bind(this);
+    return this.render();
   };
   return Class;
 }

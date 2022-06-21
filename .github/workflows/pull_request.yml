@@ -30,7 +30,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           node-version: 14.18.3
           cache: 'npm'
-      - name: Intstalling dependencies
+      - name: Installing dependencies
         run: npm install
       - name: Building the Application
-        run: npm test
+        run: npm run build

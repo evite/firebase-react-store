@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import renderer from 'react-test-renderer';
 import {observer} from '../src';
-import {rtdb} from './index';
+import {rtdb} from './';
 
 test('a component re-renders on changes', async () => {
   const doc = rtdb.get('/re-renders-on-change');
