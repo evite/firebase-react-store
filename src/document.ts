@@ -1,9 +1,11 @@
-import { ref, set, push, onValue, update, remove, onDisconnect, off } from "firebase/database";
-import type { DatabaseReference, DataSnapshot } from "firebase/database";
+import firebase from 'firebase/compat/app';
 import {NOT_SET} from './constants';
 import {state} from './state';
 import {RTDatabase} from './database';
 
+
+type DatabaseReference = firebase.database.Reference;
+type DataSnapshot = firebase.database.DataSnapshot;
 
 export class Document {
   _ref: DatabaseReference;
@@ -19,7 +21,7 @@ export class Document {
     if (!path) {
       this._ref = reference as DatabaseReference;
     } else {
-      this._ref = ref((reference as RTDatabase).fdb, path);
+      this._ref = (reference as RTDatabase).fdb.ref(path);
     }
     this._value = NOT_SET;
     this._listeners = new Set();
@@ -28,7 +30,7 @@ export class Document {
       this._rejectValues = reject;
     });
 
-    onValue(this._ref, this._onValueHandler, this._onErrorHandler);
+    this._ref.on('value', this._onValueHandler, this._onErrorHandler);
   }
 
   _onValueHandler = (response: DataSnapshot) => {
@@ -62,7 +64,7 @@ export class Document {
         documents = func._documents = new Set();
       }
       documents.add(this);
-    })
+    });
 
     if (this._value === NOT_SET) throw NOT_SET;
     return this._value;
@@ -72,7 +74,7 @@ export class Document {
     return this._ref.toString().substring(this._ref.root.toString().length - 1);
   }
 
-  onValues = async () => {
+  onValues = async (): Promise<unknown> => {
     await this._valuePromise;
     return Object.assign({}, this._value);
   };
@@ -86,7 +88,7 @@ export class Document {
    * @returns Promise
    */
   set = (values: unknown) => {
-    return set(this._ref, values);
+    return this._ref.set(values);
   };
 
   /**
@@ -96,7 +98,7 @@ export class Document {
    * @returns Promise
    */
   push = async (obj: unknown) => {
-    const ref = push(this._ref, obj);
+    const ref = await this._ref.push(obj);
     return new Document(ref);
   };
 
@@ -107,7 +109,7 @@ export class Document {
    * @returns Promise
    */
   update = (values: object) => {
-    return update(this._ref, values);
+    return this._ref.update(values);
   };
 
   /**
@@ -117,14 +119,14 @@ export class Document {
    * @returns Promise
    */
   remove = () => {
-    return remove(this._ref);
+    return this._ref.remove();
   };
 
   onDisconnect = () => {
-    return onDisconnect(this._ref);
+    return this._ref.onDisconnect();
   };
 
   close = () => {
-    this._ref && off(this._ref);
+    this._ref && this._ref.off('value');
   };
 }

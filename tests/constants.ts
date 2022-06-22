@@ -1,4 +1,4 @@
 export const TEST_FIREBASE_CONFIG = {
   apiKey: 'test',
-  databaseURL: `ws://localhost:5555`,
+  databaseURL: `http://localhost:8080`,
 };

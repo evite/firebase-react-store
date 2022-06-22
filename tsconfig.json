@@ -8,7 +8,7 @@
     "module": "ESNext",
     "declaration": true,
     "declarationDir": "build/types",
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "build",
     "moduleResolution": "node",
     "emitDeclarationOnly": true,

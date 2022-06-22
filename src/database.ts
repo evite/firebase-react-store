@@ -1,46 +1,38 @@
-import {FirebaseOptions, initializeApp} from 'firebase/app';
-import {getDatabase, Database, goOffline, goOnline} from 'firebase/database';
-import {getAuth, signInWithCustomToken, signOut, Persistence} from 'firebase/auth';
+import {firebase} from './firebase-init';
 import {Document} from './document';
+import type {FirebaseOptions} from 'firebase/app';
 
+type Args = { config: FirebaseOptions, persistence?: firebase.auth.Auth.Persistence }
 
 export class RTDatabase {
-  fdb: Database
-  authPersistence: Persistence
+  TIMESTAMP = firebase.database.ServerValue.TIMESTAMP;
+  fdb: firebase.database.Database;
+  authPersistence: string;
 
-  // auth persistence modes, see https://firebase.google.com/docs/auth/web/auth-state-persistence
-  static persistence = {
-    NONE: 'none',
-    LOCAL: 'local',
-    SESSION: 'session',
-  };
-
-  constructor(config: FirebaseOptions, persistence: Persistence) {
-    const app = initializeApp(config);
-    this.authPersistence = persistence || RTDatabase.persistence.NONE;
-    this.fdb = getDatabase(app);
+  constructor({ persistence, ...config} : Args) {
+    this.authPersistence = persistence || firebase.auth.Auth.Persistence.NONE;
+    firebase.initializeApp(config);
+    this.fdb = firebase.database();
   }
 
-  get = (path: string) => {
+  get = (path: string): Document => {
     return new Document(this, path);
   };
 
-  signInWithCustomToken = async (token: string) => {
-    const auth = getAuth();
-    // await auth.setPersistence(this.authPersistence)
-    return signInWithCustomToken(auth, token)
+  signInWithCustomToken = async (token: string): Promise<firebase.auth.UserCredential> => {
+    await firebase.auth().setPersistence(this.authPersistence);
+    return firebase.auth().signInWithCustomToken(token);
   };
 
   goOffline = () => {
-    return goOffline(this.fdb);
+    return this.fdb.goOffline();
   };
 
   goOnline = () => {
-    return goOnline(this.fdb);
+    return this.fdb.goOnline();
   };
 
   static signOut() {
-    const auth = getAuth();
-    return signOut(auth);
+    return firebase.auth().signOut();
   }
 }
