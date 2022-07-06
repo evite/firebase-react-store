@@ -1,0 +1,33 @@
+name: CI - Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version to apply: [patch, minor, major]'
+        required: true
+        default: 'patch'
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.18.3
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.3
+      - name: Auth github
+        run: |
+          git config user.email "ci@evite.com"
+          git config user.name "[CI] Github Actions"
+      - name: Generate version
+        run: |
+          npm verison ${{ github.event.inputs.version }}
+          git push
+          git push --tags

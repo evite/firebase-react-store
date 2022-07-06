@@ -6,11 +6,11 @@ class State {
    */
   pendingViews = new Set();
 
-  addPendingView = (view) => {
+  addPendingView = (view: () => void) => {
     this.pendingViews.add(view);
   };
 
-  removePendingView = (view) => {
+  removePendingView = (view: () => void) => {
     this.pendingViews.delete(view);
   };
 }
