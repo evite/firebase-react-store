@@ -6,7 +6,7 @@
     "firebase": "^5.3.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4",
+    "react-scripts": "5.0.1",
     "firebase-react-store": "^0.0.1"
   },
   "scripts": {
