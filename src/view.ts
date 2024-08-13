@@ -1,20 +1,19 @@
 import {state} from './state';
 import {NOT_SET} from './constants';
 
-export function dispose(func) {
+export function dispose(func: () => void) {
+  // @ts-ignore
   const documents = func._documents;
   if (!documents) return;
   for (let doc of documents) {
     doc._listeners.delete(func);
     if (doc._listeners.size === 0) {
-      // if the document doesn't have any listeners, we
-      // should be able to turn it off? todo
       doc.close();
     }
   }
 }
 
-function disposer(func) {
+function disposer(func: () => void) {
   return () => {
     dispose(func);
   };
@@ -27,7 +26,7 @@ function disposer(func) {
  *
  * @param func
  */
-export function view(func) {
+export function view(func: () => void) {
   // begin tracking accesses to state
   state.addPendingView(func);
 

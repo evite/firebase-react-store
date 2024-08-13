@@ -10,8 +10,6 @@ const autoExternal = require('rollup-plugin-auto-external');
 // make sure we're in the right folder
 process.chdir(path.resolve(__dirname, '..'));
 
-const binFolder = path.resolve('node_modules/.bin/');
-
 fs.removeSync('dist');
 
 const rollupPlugins = [
@@ -25,7 +23,7 @@ async function generateBundledModule(inputFile, outputFile, format) {
   console.log(`Generating ${outputFile} bundle.`);
 
   const bundle = await rollup.rollup({
-    external: ['@firebase/app', '@firebase/database'],
+    external: ['firebase/app', 'firebase/database'],
     input: inputFile,
     plugins: rollupPlugins,
   });
@@ -40,19 +38,16 @@ async function generateBundledModule(inputFile, outputFile, format) {
 function build() {
   return Promise.all([
     generateBundledModule(
-      path.resolve('src', 'index.js'),
+      path.resolve('src', 'index.ts'),
       path.resolve('dist', 'firebase-react-store.cjs.js'),
       'cjs'
     ),
     generateBundledModule(
-      path.resolve('src', 'index.js'),
+      path.resolve('src', 'index.ts'),
       path.resolve('dist', 'firebase-react-store.js'),
       'es'
     ),
-  ]).then(() => {
-    // generateUmd();
-    // generateMinified();
-  });
+  ]);
 }
 
 build().catch((e) => {

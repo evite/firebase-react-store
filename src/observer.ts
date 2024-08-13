@@ -1,10 +1,9 @@
 import {state} from './state';
 import {NOT_SET} from './constants';
-import {Component, PureComponent} from 'react';
+import {Component, ComponentClass, FunctionComponent, PureComponent} from 'react';
 import {dispose} from './view';
 
-function reactiveRender() {
-  // begin tracking accesses to state
+function reactiveRender(this: any) {
   state.addPendingView(this._fireRender);
 
   try {
@@ -28,12 +27,11 @@ function reactiveRender() {
  * Decorate a whole class as an observer of one or more documents
  * @param Class
  */
-export function observer(Class) {
-  // switch borrowed from mobx-react - wrap a functional component in a class
-  // for lifecycle methods
+export function observer(Class: FunctionComponent | ComponentClass): any {
   if (
-    typeof Class === 'function' &&
+  typeof Class === 'function' &&
     (!Class.prototype || !Class.prototype.render) &&
+    // @ts-ignore
     !Class.isReactClass &&
     !Component.isPrototypeOf(Class)
   ) {
@@ -43,7 +41,7 @@ export function observer(Class) {
       static propTypes = Class.propTypes;
       static defaultProps = Class.defaultProps;
       render() {
-        return Class.call(this, this.props, this.context);
+        return (Class as FunctionComponent).call(this, this.props, this.context);
       }
     };
     return observer(tmp);
