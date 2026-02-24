@@ -1,6 +1,6 @@
 {
   "name": "firebase-react-store",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Seamless React firebase integration",
   "module": "dist/firebase-react-store.js",
   "main": "dist/firebase-react-store.cjs.js",
