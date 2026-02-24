@@ -1,11 +1,16 @@
-import firebase from 'firebase/compat/app';
-import {NOT_SET} from './constants';
-import {state} from './state';
-import {RTDatabase} from './database';
-
-
-type DatabaseReference = firebase.database.Reference;
-type DataSnapshot = firebase.database.DataSnapshot;
+import {
+  ref,
+  onValue,
+  set,
+  update,
+  remove,
+  push,
+  onDisconnect,
+} from 'firebase/database';
+import type { DatabaseReference, DataSnapshot, Unsubscribe } from 'firebase/database';
+import { NOT_SET } from './constants';
+import { state } from './state';
+import { RTDatabase } from './database';
 
 export class Document {
   _ref: DatabaseReference;
@@ -16,12 +21,13 @@ export class Document {
   _rejectValues: (error: unknown) => void;
   _listeners: Set<any>;
   _value: any;
+  _unsubscribe: Unsubscribe;
 
   constructor(reference: RTDatabase | DatabaseReference, path?: string) {
     if (!path) {
       this._ref = reference as DatabaseReference;
     } else {
-      this._ref = (reference as RTDatabase).fdb.ref(path);
+      this._ref = ref((reference as RTDatabase).fdb, path);
     }
     this._value = NOT_SET;
     this._listeners = new Set();
@@ -30,7 +36,7 @@ export class Document {
       this._rejectValues = reject;
     });
 
-    this._ref.on('value', this._onValueHandler, this._onErrorHandler);
+    this._unsubscribe = onValue(this._ref, this._onValueHandler, this._onErrorHandler);
   }
 
   _onValueHandler = (response: DataSnapshot) => {
@@ -46,7 +52,7 @@ export class Document {
     }
   };
 
-  _onErrorHandler = (error: unknown) => {
+  _onErrorHandler = (error: Error) => {
     this._rejectValues(error);
   };
 
@@ -88,7 +94,7 @@ export class Document {
    * @returns Promise
    */
   set = (values: unknown) => {
-    return this._ref.set(values);
+    return set(this._ref, values);
   };
 
   /**
@@ -98,8 +104,9 @@ export class Document {
    * @returns Promise
    */
   push = async (obj: unknown) => {
-    const ref = await this._ref.push(obj);
-    return new Document(ref);
+    const newRef = push(this._ref);
+    await set(newRef, obj);
+    return new Document(newRef);
   };
 
   /**
@@ -109,7 +116,7 @@ export class Document {
    * @returns Promise
    */
   update = (values: object) => {
-    return this._ref.update(values);
+    return update(this._ref, values);
   };
 
   /**
@@ -119,14 +126,16 @@ export class Document {
    * @returns Promise
    */
   remove = () => {
-    return this._ref.remove();
+    return remove(this._ref);
   };
 
   onDisconnect = () => {
-    return this._ref.onDisconnect();
+    return onDisconnect(this._ref);
   };
 
   close = () => {
-    this._ref && this._ref.off('value');
+    if (this._unsubscribe) {
+      this._unsubscribe();
+    }
   };
 }

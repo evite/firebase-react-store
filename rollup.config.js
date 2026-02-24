@@ -29,7 +29,7 @@ export default [
       typescript({ tsconfig: './tsconfig.json' }),
       terser(),
     ],
-    external: ['firebase/app', 'firebase/database']
+    external: ['firebase/app', 'firebase/database', 'firebase/auth']
   },
   {
     input: 'build/types/index.d.ts',
