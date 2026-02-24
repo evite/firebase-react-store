@@ -7,7 +7,7 @@ import {
   push,
   onDisconnect,
 } from 'firebase/database';
-import type { DatabaseReference, DataSnapshot, Unsubscribe } from 'firebase/database';
+import type { DatabaseReference, DataSnapshot, OnDisconnect, Unsubscribe } from 'firebase/database';
 import { NOT_SET } from './constants';
 import { state } from './state';
 import { RTDatabase } from './database';
@@ -129,7 +129,7 @@ export class Document {
     return remove(this._ref);
   };
 
-  onDisconnect = () => {
+  onDisconnect = (): OnDisconnect => {
     return onDisconnect(this._ref);
   };
 

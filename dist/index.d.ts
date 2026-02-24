@@ -1,7 +1,6 @@
 import { FirebaseOptions } from 'firebase/app';
-import { DatabaseReference, Unsubscribe, DataSnapshot, Database } from 'firebase/database';
+import { DatabaseReference, Unsubscribe, DataSnapshot, OnDisconnect, Database } from 'firebase/database';
 import { Auth, Persistence, UserCredential } from 'firebase/auth';
-import * as _firebase_database from '@firebase/database';
 import React, { FunctionComponent, ComponentClass } from 'react';
 
 declare class Document {
@@ -49,7 +48,7 @@ declare class Document {
      * @returns Promise
      */
     remove: () => Promise<void>;
-    onDisconnect: () => _firebase_database.OnDisconnect;
+    onDisconnect: () => OnDisconnect;
     close: () => void;
 }
 

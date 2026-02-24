@@ -1,4 +1,4 @@
-import type { DatabaseReference, DataSnapshot, Unsubscribe } from 'firebase/database';
+import type { DatabaseReference, DataSnapshot, OnDisconnect, Unsubscribe } from 'firebase/database';
 import { RTDatabase } from './database';
 export declare class Document {
     _ref: DatabaseReference;
@@ -45,6 +45,6 @@ export declare class Document {
      * @returns Promise
      */
     remove: () => Promise<void>;
-    onDisconnect: () => import("@firebase/database").OnDisconnect;
+    onDisconnect: () => OnDisconnect;
     close: () => void;
 }
