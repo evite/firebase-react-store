@@ -1,9 +1,8 @@
-import firebase from 'firebase/compat/app';
 import { FirebaseOptions } from 'firebase/app';
+import { DatabaseReference, Unsubscribe, DataSnapshot, OnDisconnect, Database } from 'firebase/database';
+import { Auth, Persistence, UserCredential } from 'firebase/auth';
 import React, { FunctionComponent, ComponentClass } from 'react';
 
-declare type DatabaseReference = firebase.database.Reference;
-declare type DataSnapshot = firebase.database.DataSnapshot;
 declare class Document {
     _ref: DatabaseReference;
     _valuePromise: Promise<any>;
@@ -11,9 +10,10 @@ declare class Document {
     _rejectValues: (error: unknown) => void;
     _listeners: Set<any>;
     _value: any;
+    _unsubscribe: Unsubscribe;
     constructor(reference: RTDatabase | DatabaseReference, path?: string);
     _onValueHandler: (response: DataSnapshot) => void;
-    _onErrorHandler: (error: unknown) => void;
+    _onErrorHandler: (error: Error) => void;
     get key(): string | null;
     get value(): any;
     get path(): string;
@@ -48,24 +48,24 @@ declare class Document {
      * @returns Promise
      */
     remove: () => Promise<void>;
-    onDisconnect: () => firebase.database.OnDisconnect;
+    onDisconnect: () => OnDisconnect;
     close: () => void;
 }
 
-declare type Args$1 = {
-    config: FirebaseOptions;
-    persistence?: firebase.auth.Auth.Persistence;
+type Args$1 = FirebaseOptions & {
+    persistence?: Persistence;
 };
 declare class RTDatabase {
-    TIMESTAMP: Object;
-    fdb: firebase.database.Database;
-    authPersistence: string;
+    TIMESTAMP: object;
+    fdb: Database;
+    auth: Auth;
+    authPersistence: Persistence;
     constructor({ persistence, ...config }: Args$1);
     get: (path: string) => Document;
-    signInWithCustomToken: (token: string) => Promise<firebase.auth.UserCredential>;
-    goOffline: () => any;
-    goOnline: () => any;
-    static signOut(): Promise<void>;
+    signInWithCustomToken: (token: string) => Promise<UserCredential>;
+    goOffline: () => void;
+    goOnline: () => void;
+    signOut: () => Promise<void>;
 }
 
 /**
@@ -83,7 +83,7 @@ declare function view(func: () => void): () => void;
  */
 declare function observer(Class: FunctionComponent | ComponentClass): any;
 
-declare type Args = {
+type Args = {
     database?: RTDatabase;
     path?: string;
     orderByKey?: boolean;
@@ -92,7 +92,7 @@ declare type Args = {
     limitToLast?: number;
     limitToFirst?: number;
 };
-declare type PropTypes = Args;
+type PropTypes = Args;
 /**
  * This function/decorator creates a HOC that wraps the given
  * component and listens to collection events.

@@ -1,7 +1,5 @@
-import firebase from 'firebase/compat/app';
+import type { DatabaseReference, DataSnapshot, OnDisconnect, Unsubscribe } from 'firebase/database';
 import { RTDatabase } from './database';
-declare type DatabaseReference = firebase.database.Reference;
-declare type DataSnapshot = firebase.database.DataSnapshot;
 export declare class Document {
     _ref: DatabaseReference;
     _valuePromise: Promise<any>;
@@ -9,9 +7,10 @@ export declare class Document {
     _rejectValues: (error: unknown) => void;
     _listeners: Set<any>;
     _value: any;
+    _unsubscribe: Unsubscribe;
     constructor(reference: RTDatabase | DatabaseReference, path?: string);
     _onValueHandler: (response: DataSnapshot) => void;
-    _onErrorHandler: (error: unknown) => void;
+    _onErrorHandler: (error: Error) => void;
     get key(): string | null;
     get value(): any;
     get path(): string;
@@ -46,7 +45,6 @@ export declare class Document {
      * @returns Promise
      */
     remove: () => Promise<void>;
-    onDisconnect: () => firebase.database.OnDisconnect;
+    onDisconnect: () => OnDisconnect;
     close: () => void;
 }
-export {};

@@ -1,6 +1,6 @@
 import React from 'react';
 import { RTDatabase } from './database';
-declare type Args = {
+type Args = {
     database?: RTDatabase;
     path?: string;
     orderByKey?: boolean;
@@ -9,7 +9,7 @@ declare type Args = {
     limitToLast?: number;
     limitToFirst?: number;
 };
-declare type PropTypes = Args;
+type PropTypes = Args;
 /**
  * This function/decorator creates a HOC that wraps the given
  * component and listens to collection events.

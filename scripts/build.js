@@ -23,7 +23,7 @@ async function generateBundledModule(inputFile, outputFile, format) {
   console.log(`Generating ${outputFile} bundle.`);
 
   const bundle = await rollup.rollup({
-    external: ['firebase/app', 'firebase/database'],
+    external: ['firebase/app', 'firebase/database', 'firebase/auth'],
     input: inputFile,
     plugins: rollupPlugins,
   });

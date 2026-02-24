@@ -1,5 +1,17 @@
 import React, {FunctionComponent, PureComponent} from 'react';
-import firebase from 'firebase/compat/app';
+import {
+  query,
+  orderByKey,
+  orderByValue,
+  orderByChild,
+  limitToLast,
+  limitToFirst,
+  onChildAdded,
+  onChildChanged,
+  onChildRemoved,
+  onChildMoved,
+} from 'firebase/database';
+import type { Query, DataSnapshot, Unsubscribe } from 'firebase/database';
 import {RTDatabase} from './database';
 import {Document} from './document';
 
@@ -15,9 +27,6 @@ type Args = {
 
 type PropTypes = Args;
 
-type Query = firebase.database.Query;
-type DataSnapshot = firebase.database.DataSnapshot;
-type Reference = firebase.database.Reference;
 /**
  * This function/decorator creates a HOC that wraps the given
  * component and listens to collection events.
@@ -34,19 +43,20 @@ export const collectionObserver: (options?: Args) => (component: React.FunctionC
       query?: Query;
       limit: number;
       collection: any[] = [];
+      _unsubs: Unsubscribe[] = [];
 
       constructor(props: PropTypes) {
         super(props);
         this.state = {error: null};
         this.runQuery();
 
-        const limitToLast = options.limitToLast || this.props.limitToLast;
-        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
-        this.limit = limitToLast || limitToFirst || 50;
+        const _limitToLast = options.limitToLast || this.props.limitToLast;
+        const _limitToFirst = options.limitToFirst || this.props.limitToFirst;
+        this.limit = _limitToLast || _limitToFirst || 50;
       }
 
       runQuery = () => {
-        if (this.query) this.query.off();
+        this._unsubAll();
         this.collection = [];
 
         const props = { ...this.props, ...options }
@@ -57,38 +67,48 @@ export const collectionObserver: (options?: Args) => (component: React.FunctionC
         if (!db) throw new Error("Collection requires a 'database' option.");
 
         const doc: Document = db.get(path);
-        let query: Reference | Query = doc._ref;
-        CollectionObserver.displayName = `collection-observer-${query.toString()}`;
+        const baseRef = doc._ref;
+        CollectionObserver.displayName = `collection-observer-${baseRef.toString()}`;
+
+        const constraints: any[] = [];
 
         if (props.orderByKey) {
-          query = query.orderByKey();
+          constraints.push(orderByKey());
         }
 
         if (props.orderByValue) {
-          query = query.orderByValue();
+          constraints.push(orderByValue());
         }
 
         if (props.orderByChild) {
-          query = query.orderByChild(props.orderByChild);
+          constraints.push(orderByChild(props.orderByChild));
         }
 
         if (!!props.limitToLast) {
-          query = query.limitToLast(props.limitToLast);
+          constraints.push(limitToLast(props.limitToLast));
         }
         if (!!props.limitToFirst) {
-          // @ts-ignore
-          query = query.limitToFirst(limitToFirst);
+          constraints.push(limitToFirst(props.limitToFirst));
         }
 
-        this.query = query;
+        this.query = query(baseRef, ...constraints);
         if (this.mounted) this.listenToQuery();
       };
 
+      _unsubAll = () => {
+        for (const unsub of this._unsubs) {
+          unsub();
+        }
+        this._unsubs = [];
+      };
+
       listenToQuery = () => {
-        this.query!.on('child_added', this.onChildAdded, this.onQueryError);
-        this.query!.on('child_changed', this.onChildChanged, this.onQueryError);
-        this.query!.on('child_removed', this.onChildRemoved, this.onQueryError);
-        this.query!.on('child_moved', this.onChildMoved, this.onQueryError);
+        this._unsubs.push(
+          onChildAdded(this.query!, this.onChildAdded, this.onQueryError),
+          onChildChanged(this.query!, this.onChildChanged, this.onQueryError),
+          onChildRemoved(this.query!, this.onChildRemoved, this.onQueryError),
+          onChildMoved(this.query!, this.onChildMoved, this.onQueryError),
+        );
       };
 
       componentDidMount() {
@@ -98,10 +118,10 @@ export const collectionObserver: (options?: Args) => (component: React.FunctionC
 
       componentWillUnmount() {
         this.mounted = false;
-        this.query!.off();
+        this._unsubAll();
       }
 
-      onQueryError = (error: unknown) => {
+      onQueryError = (error: Error) => {
         this.setState({error: error});
       };
 
@@ -177,12 +197,12 @@ export const collectionObserver: (options?: Args) => (component: React.FunctionC
        * This is meant to be used by infinite scrolling components
        */
       onScroll = () => {
-        const limitToLast = options.limitToLast || this.props.limitToLast;
-        const limitToFirst = options.limitToFirst || this.props.limitToFirst;
-        if (limitToLast) {
-          options.limitToLast = limitToLast + this.limit;
-        } else if (limitToFirst) {
-          options.limitToFirst = limitToFirst + this.limit;
+        const _limitToLast = options.limitToLast || this.props.limitToLast;
+        const _limitToFirst = options.limitToFirst || this.props.limitToFirst;
+        if (_limitToLast) {
+          options.limitToLast = _limitToLast + this.limit;
+        } else if (_limitToFirst) {
+          options.limitToFirst = _limitToFirst + this.limit;
         }
         this.runQuery();
       };
